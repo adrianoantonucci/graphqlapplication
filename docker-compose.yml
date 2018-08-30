@@ -1,0 +1,38 @@
+# docker-compose.yml
+version: '3'
+services:
+  db:
+    image: postgres:9.5
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 20ver6web
+      POSTGRES_DB: graphql_example
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "54321:5432"
+    networks:
+      vpcbr:
+          ipv4_address: 10.5.0.5
+  app:
+    build: .
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 20ver6web
+      POSTGRES_DB: graphql_example
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/graphqlapplication
+    ports:
+      - "3000:3000"
+    networks:
+      vpcbr:
+          ipv4_address: 10.5.0.6
+    depends_on:
+      - db
+networks:
+    vpcbr:
+        driver: bridge
+        ipam:
+          config:
+            - subnet: 10.5.0.0/16
